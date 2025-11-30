@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - SITTA UT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: { fontFamily: { sans: ["Montserrat", "sans-serif"] } },
+        },
+      };
+    </script>
+    <script src="./js/auth.js"></script>
+    <style>
+      [v-cloak] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 h-screen flex items-center justify-center">
+    <div id="app" class="w-full max-w-md p-6" v-cloak>
+      <div
+        class="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200"
+      >
+        <div class="bg-blue-900 p-8 text-center">
+          <div
+            class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white text-blue-900 mb-4 shadow-lg"
+          >
+            <i class="fa-solid fa-university text-3xl"></i>
+          </div>
+          <h1 class="text-2xl font-bold text-white tracking-wide">SITTA UT</h1>
+          <p class="text-blue-200 text-xs mt-1">
+            Sistem Informasi Tiras & Transaksi
+          </p>
+        </div>
+
+        <div class="p-8">
+          <form @submit.prevent="handleLogin" class="space-y-5">
+            <div
+              v-if="errorMsg"
+              class="bg-red-50 text-red-600 text-sm p-3 rounded border border-red-200 flex items-center gap-2"
+            >
+              <i class="fa-solid fa-circle-exclamation"></i>
+              {{ errorMsg }}
+            </div>
+
+            <div>
+              <label
+                class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1"
+                >Email Address</label
+              >
+              <div class="relative">
+                <span class="absolute left-3 top-2.5 text-gray-400"
+                  ><i class="fa-solid fa-envelope"></i
+                ></span>
+                <input
+                  v-model="email"
+                  type="email"
+                  placeholder="Email"
+                  class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label
+                class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1"
+                >Password</label
+              >
+              <div class="relative">
+                <span class="absolute left-3 top-2.5 text-gray-400"
+                  ><i class="fa-solid fa-lock"></i
+                ></span>
+                <input
+                  v-model="password"
+                  type="password"
+                  placeholder="Password"
+                  class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                  required
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="w-full bg-green-700 hover:bg-green-800 text-white font-bold py-3 rounded transform active:scale-95 transition flex justify-center gap-2 items-center"
+            >
+              <span v-if="loading"
+                ><i class="fa-solid fa-spinner fa-spin"></i> Loading...</span
+              >
+              <span v-else
+                >Masuk <i class="fa-solid fa-arrow-right ml-1"></i
+              ></span>
+            </button>
+          </form>
+        </div>
+        <div class="bg-gray-50 p-4 text-center text-xs text-gray-400 border-t">
+          &copy; 2025 Universitas Terbuka - created by Ananda Saputra
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+      const { createApp, ref } = Vue;
+
+      createApp({
+        setup() {
+          const email = ref("");
+          const password = ref("");
+          const errorMsg = ref("");
+          const loading = ref(false);
+
+          const handleLogin = () => {
+            loading.value = true;
+            errorMsg.value = "";
+
+            // Simulasi network delay sedikit biar UX enak
+            setTimeout(() => {
+              // Panggil fungsi doLogin dari auth.js (Global Function)
+              const success = doLogin(email.value, password.value);
+
+              if (success) {
+                window.location.href = "index.html";
+              } else {
+                errorMsg.value = "Email atau Password salah!";
+                loading.value = false;
+              }
+            }, 800);
+          };
+
+          return { email, password, errorMsg, loading, handleLogin };
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>

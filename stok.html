@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stok Bahan Ajar - SITTA UT</title>
+    <script src="./js/auth.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ["Montserrat", "sans-serif"] },
+          },
+        },
+      };
+    </script>
+
+    <link rel="stylesheet" href="./css/style.css" />
+    <style>
+      [v-cloak] {
+        display: none !important;
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-50 font-sans text-gray-800">
+    <div id="app" class="max-w-6xl mx-auto p-6" v-cloak>
+      <header
+        class="mb-8 flex flex-row gap-4 justify-between items-center h-fit"
+      >
+        <div class="flex gap-4 items-center flex-1">
+          <a
+            href="index.html"
+            class="p-3 hover:bg-gray-300 focus:bg-gray-400 rounded-full text-sm font-medium transition h-full"
+          >
+            <i class="fa-solid fa-arrow-left"></i>
+          </a>
+          <div class="flex-1">
+            <h1 class="text-3xl font-bold text-blue-900">SITTA UT</h1>
+            <p class="text-gray-500 text-sm hidden md:block">
+              Sistem Informasi Tiras & Transaksi Bahan Ajar
+            </p>
+          </div>
+        </div>
+
+        <button
+          @click="openInputModal"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg font-bold transition flex items-center gap-2"
+        >
+          <i class="fa-solid fa-plus"></i>
+          <span class="hidden md:inline">Tambah Data</span>
+        </button>
+        <button
+          onclick="doLogout()"
+          class="bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-lg font-bold transition flex items-center gap-2"
+          title="Logout"
+        >
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span class="hidden md:inline">Logout</span>
+        </button>
+      </header>
+
+      <div
+        class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6"
+      >
+        <h2 class="text-lg font-semibold mb-4 text-gray-700">
+          Filter & Sort Data
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1"
+              >UT-Daerah</label
+            >
+            <select
+              v-model="filterUpbjj"
+              class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+            >
+              <option value="">Semua Daerah</option>
+              <option v-for="kota in listUpbjj" :key="kota" :value="kota">
+                {{ kota }}
+              </option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1"
+              >Kategori MK</label
+            >
+            <select
+              v-model="filterKategori"
+              :disabled="!filterUpbjj"
+              class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
+            >
+              <option value="">Semua Kategori</option>
+              <option v-for="kat in uniqueCategories" :key="kat" :value="kat">
+                {{ kat }}
+              </option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1"
+              >Urutkan</label
+            >
+            <select
+              v-model="sortBy"
+              class="w-full p-2 border border-gray-300 rounded"
+            >
+              <option value="judul">Judul (A-Z)</option>
+              <option value="qty">Jumlah Stok (Terkecil)</option>
+              <option value="harga">Harga (Termurah)</option>
+            </select>
+          </div>
+          <div class="flex flex-col justify-end space-y-2">
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                v-model="filterWarning"
+                class="form-checkbox h-4 w-4 text-blue-600 rounded"
+              />
+              <span class="text-sm text-gray-700">Stok Menipis/Kosong</span>
+            </label>
+            <button
+              @click="resetFilters"
+              class="text-sm text-red-600 hover:text-red-800 font-medium text-left"
+            >
+              Reset Filter
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="bg-white rounded-lg shadow overflow-hidden border border-gray-200 mb-10"
+      >
+        <table class="w-full text-left border-collapse">
+          <thead class="bg-gray-100 text-gray-600 uppercase text-xs font-bold">
+            <tr>
+              <th class="p-4 border-b">Kode</th>
+              <th class="p-4 border-b">Mata Kuliah</th>
+              <th class="p-4 border-b hidden md:table-cell">Kategori</th>
+              <th class="p-4 border-b hidden md:table-cell">Lokasi</th>
+              <th class="p-4 border-b text-center">Stok</th>
+              <th class="p-4 border-b text-center">Status</th>
+              <th class="p-4 border-b text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody class="text-sm divide-y divide-gray-100">
+            <tr
+              v-for="item in processedStok"
+              :key="item.kode"
+              class="hover:bg-gray-50 transition"
+            >
+              <td class="p-4 font-mono text-gray-500">{{ item.kode }}</td>
+              <td class="p-4 font-medium text-gray-900">{{ item.judul }}</td>
+              <td class="p-4 text-gray-600 hidden md:table-cell">
+                {{ item.kategori }}
+              </td>
+              <td class="p-4 text-gray-600 hidden md:table-cell">
+                {{ item.lokasi }}
+              </td>
+              <td class="p-4 text-center font-bold">{{ item.qty }}</td>
+              <td class="p-4 text-center">
+                <span
+                  :class="getStatusClass(item)"
+                  class="px-3 py-1 rounded-full text-xs font-bold border"
+                >
+                  {{ getStatusLabel(item) }}
+                </span>
+              </td>
+              <td class="p-4 text-center">
+                <button
+                  @click="openDetail(item)"
+                  class="text-blue-600 hover:text-blue-800 transition p-2 rounded-full hover:bg-blue-50"
+                  title="Lihat Detail"
+                >
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+              </td>
+            </tr>
+            <tr v-if="processedStok.length === 0">
+              <td colspan="7" class="p-8 text-center text-gray-500">
+                Tidak ada data yang cocok.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div
+        v-if="showInputModal"
+        class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 backdrop-blur-sm transition-opacity"
+      >
+        <div
+          class="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all scale-100"
+        >
+          <div
+            class="bg-blue-600 text-white p-5 flex justify-between items-center"
+          >
+            <h3 class="font-bold text-lg">
+              <i class="fa-solid fa-plus-circle mr-2"></i> Tambah Stok Baru
+            </h3>
+            <button
+              @click="closeInputModal"
+              class="text-white hover:bg-blue-700 w-8 h-8 rounded-full flex items-center justify-center transition"
+            >
+              <i class="fa-solid fa-times"></i>
+            </button>
+          </div>
+
+          <div class="p-6 max-h-[80vh] overflow-y-auto">
+            <form @submit.prevent="tambahData">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    class="block text-xs font-bold text-gray-500 uppercase mb-1"
+                    >Kode MK</label
+                  >
+                  <input
+                    v-model="newData.kode"
+                    placeholder="cth: MK001"
+                    class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                    required
+                  />
+                </div>
+                <div>
+                  <label
+                    class="block text-xs font-bold text-gray-500 uppercase mb-1"
+                    >Nama Mata Kuliah</label
+                  >
+                  <input
+                    v-model="newData.judul"
+                    placeholder="cth: Pemrograman Web"
+                    class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                    required
+                  />
+                </div>
+                <div>
+                  <label
+                    class="block text-xs font-bold text-gray-500 uppercase mb-1"
+                    >Kategori</label
+                  >
+                  <select
+                    v-model="newData.kategori"
+                    class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                  >
+                    <option value="Umum">Umum</option>
+                    <option value="Teknologi">Teknologi</option>
+                    <option value="Ekonomi">Ekonomi</option>
+                    <option value="Hukum">Hukum</option>
+                  </select>
+                </div>
+                <div>
+                  <label
+                    class="block text-xs font-bold text-gray-500 uppercase mb-1"
+                    >UT-Daerah</label
+                  >
+                  <select
+                    v-model="newData.upbjj"
+                    class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                  >
+                    <option v-for="kota in listUpbjj" :key="kota" :value="kota">
+                      {{ kota }}
+                    </option>
+                  </select>
+                </div>
+                <div>
+                  <label
+                    class="block text-xs font-bold text-gray-500 uppercase mb-1"
+                    >Lokasi Rak</label
+                  >
+                  <input
+                    v-model="newData.lokasi"
+                    placeholder="cth: A-01"
+                    class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+                <div>
+                  <label
+                    class="block text-xs font-bold text-gray-500 uppercase mb-1"
+                    >Qty (Stok)</label
+                  >
+                  <input
+                    type="number"
+                    v-model.number="newData.qty"
+                    placeholder="0"
+                    class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                    required
+                  />
+                </div>
+                <div>
+                  <label
+                    class="block text-xs font-bold text-gray-500 uppercase mb-1"
+                    >Safety Stock</label
+                  >
+                  <input
+                    type="number"
+                    v-model.number="newData.safety"
+                    placeholder="5"
+                    class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+                <div>
+                  <label
+                    class="block text-xs font-bold text-gray-500 uppercase mb-1"
+                    >Harga Satuan</label
+                  >
+                  <input
+                    type="number"
+                    v-model.number="newData.harga"
+                    placeholder="Rp 0"
+                    class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+              </div>
+
+              <div class="mt-8 flex justify-end gap-3 border-t pt-4">
+                <button
+                  type="button"
+                  @click="closeInputModal"
+                  class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded font-bold transition"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-bold shadow transition"
+                >
+                  Simpan
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div
+        v-if="selectedItem"
+        class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 backdrop-blur-sm transition-opacity"
+      >
+        <div
+          class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all scale-100"
+        >
+          <div
+            class="bg-gray-800 text-white p-5 flex justify-between items-center"
+          >
+            <div>
+              <h3 class="font-bold text-lg">Detail Bahan Ajar</h3>
+              <p class="text-xs text-gray-400 font-mono">
+                {{ selectedItem.kode }}
+              </p>
+            </div>
+            <button
+              @click="closeDetail"
+              class="text-white hover:bg-gray-700 w-8 h-8 rounded-full flex items-center justify-center transition"
+            >
+              <i class="fa-solid fa-times"></i>
+            </button>
+          </div>
+
+          <div class="p-6">
+            <h4 class="text-xl font-bold text-gray-800 mb-1">
+              {{ selectedItem.judul }}
+            </h4>
+            <span
+              class="inline-block px-3 py-1 text-xs font-semibold bg-gray-100 text-gray-600 rounded-full mb-6"
+            >
+              {{ selectedItem.kategori }}
+            </span>
+
+            <div class="grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
+              <div class="col-span-2 border-b pb-4 mb-2">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-gray-500">Status Stok</span>
+                  <span
+                    :class="getStatusClass(selectedItem)"
+                    class="px-3 py-1 rounded-full text-xs font-bold border"
+                  >
+                    {{ getStatusLabel(selectedItem) }}
+                  </span>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div class="flex-1 bg-gray-50 p-3 rounded border text-center">
+                    <div class="text-xs text-gray-500 uppercase font-bold">
+                      Stok Saat Ini
+                    </div>
+                    <div class="text-2xl font-bold text-gray-800">
+                      {{ selectedItem.qty }}
+                    </div>
+                  </div>
+                  <div class="flex-1 bg-gray-50 p-3 rounded border text-center">
+                    <div class="text-xs text-gray-500 uppercase font-bold">
+                      Batas Aman
+                    </div>
+                    <div class="text-xl font-bold text-gray-600">
+                      {{ selectedItem.safety }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase"
+                  >Lokasi Rak</label
+                >
+                <div
+                  class="text-gray-800 font-medium mt-1 flex items-center gap-2"
+                >
+                  <i class="fa-solid fa-map-pin text-gray-400"></i>
+                  {{ selectedItem.lokasi }}
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase"
+                  >UT Daerah</label
+                >
+                <div
+                  class="text-gray-800 font-medium mt-1 flex items-center gap-2"
+                >
+                  <i class="fa-solid fa-building text-gray-400"></i>
+                  {{ selectedItem.upbjj }}
+                </div>
+              </div>
+
+              <div class="col-span-2 mt-2">
+                <label class="block text-xs font-bold text-gray-500 uppercase"
+                  >Harga Satuan</label
+                >
+                <div class="text-2xl font-bold text-blue-600 mt-1">
+                  {{ formatRupiah(selectedItem.harga) }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-gray-50 p-4 flex justify-end">
+            <button
+              @click="closeDetail"
+              class="px-4 py-2 bg-gray-200 text-gray-700 rounded font-bold hover:bg-gray-300 transition text-sm"
+            >
+              Tutup
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script type="module" src="./js/stok-app.js"></script>
+  </body>
+</html>

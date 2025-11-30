@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SITTA UT - Dashboard</title>
+    <script src="./js/auth.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              // Mengubah default font-sans menjadi Montserrat
+              sans: ["Montserrat", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+      integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body class="bg-gray-100 h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-lg text-center max-w-md w-full">
+      <h1 class="text-4xl font-bold text-blue-900 mb-2">SITTA UT</h1>
+      <p class="text-gray-500 mb-8">
+        Sistem Informasi Tiras & Transaksi Bahan Ajar
+      </p>
+
+      <div class="space-y-4">
+        <a
+          href="stok.html"
+          class="block w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded font-bold transition"
+        >
+          <i class="fa-solid fa-folder-open"></i>
+          Kelola Stok Bahan Ajar
+        </a>
+        <a
+          href="tracking.html"
+          class="block w-full py-4 bg-green-600 hover:bg-green-700 text-white rounded font-bold transition"
+        >
+          <i class="fa-solid fa-truck-fast"></i>
+          Tracking Delivery Order
+        </a>
+        <button
+          onclick="doLogout()"
+          class="block w-full py-4 bg-red-600 hover:bg-red-700 text-white rounded font-bold transition"
+          title="Logout"
+        >
+          <i class="fa-solid fa-right-from-bracket text-xl"></i>
+          Logout
+        </button>
+      </div>
+
+      <div class="mt-8 text-xs text-gray-400">
+        Tugas Praktik 2 - Pemrograman Web (Vue.js)
+      </div>
+    </div>
+  </body>
+</html>

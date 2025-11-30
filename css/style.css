@@ -1,0 +1,19 @@
+*,
+::before,
+::after {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: #e5e7eb;
+}
+
+/* File ini sekarang bersih karena Tailwind CSS utama sudah dimuat lewat CDN.
+   Kita hanya butuh aturan khusus di sini.
+*/
+
+/* FIX FOUC (Flash of Unstyled Content) 
+   Menyembunyikan elemen dengan atribut v-cloak sampai Vue siap.
+*/
+[v-cloak] {
+  display: none !important;
+}

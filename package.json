@@ -1,0 +1,10 @@
+{
+  "name": "tugas2-vuejs-stsi4209",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "live-server --port=8080 --entry-file=index.html"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}
