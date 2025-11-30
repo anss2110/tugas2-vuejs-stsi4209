@@ -4,11 +4,9 @@ const { createApp, ref, computed, watch } = Vue;
 
 const App = {
   setup() {
-    /** @type {import('vue').Ref<Array<import('./dataBahanAjar.js').BahanAjar>>} */
     const rawData = ref(dbBahanAjar);
     const listUpbjj = ref(dbUpbjj);
 
-    // Note : State Form Baru
     const newData = ref({
       kode: "",
       judul: "",
@@ -20,17 +18,14 @@ const App = {
       harga: null,
     });
 
-    // Note : State Filter
     const filterUpbjj = ref("");
     const filterKategori = ref("");
     const filterWarning = ref(false);
     const sortBy = ref("judul");
 
-    // Note : State Modal
     const selectedItem = ref(null);
     const showInputModal = ref(false);
 
-    // Note : Computed: Kategori Unik
     const uniqueCategories = computed(() => {
       const source = filterUpbjj.value
         ? rawData.value.filter((item) => item.upbjj === filterUpbjj.value)
@@ -38,7 +33,6 @@ const App = {
       return [...new Set(source.map((item) => item.kategori))];
     });
 
-    // Note : Computed: Processed Data
     const processedStok = computed(() => {
       let result = [...rawData.value];
 
@@ -66,12 +60,10 @@ const App = {
       return result;
     });
 
-    // Note :  Watchers
     watch(filterUpbjj, () => {
       filterKategori.value = "";
     });
 
-    // Methods
     const resetFilters = () => {
       filterUpbjj.value = "";
       filterKategori.value = "";
@@ -79,7 +71,6 @@ const App = {
       sortBy.value = "judul";
     };
 
-    // --- Methods Modal Input ---
     const openInputModal = () => {
       showInputModal.value = true;
     };
@@ -105,7 +96,6 @@ const App = {
       }
     };
 
-    // --- Methods Modal Detail ---
     const openDetail = (item) => {
       selectedItem.value = item;
     };
@@ -144,13 +134,13 @@ const App = {
       sortBy,
       newData,
       selectedItem,
-      showInputModal, // Return state baru
+      showInputModal,
       resetFilters,
       tambahData,
       openDetail,
       closeDetail,
-      openInputModal, // Return method baru
-      closeInputModal, // Return method baru
+      openInputModal,
+      closeInputModal,
       formatRupiah,
       getStatusClass,
       getStatusLabel,

@@ -1,24 +1,3 @@
-/**
- * @typedef {Object} BahanAjar
- * @property {string} kode - Kode Mata Kuliah
- * @property {string} judul - Judul Mata Kuliah
- * @property {string} kategori - Kategori
- * @property {string} upbjj - Lokasi UT Daerah
- * @property {string} lokasi - Lokasi Rak
- * @property {number} qty - Jumlah Stok
- * @property {number} safety - Batas Aman Stok
- * @property {number} harga - Harga Satuan
- */
-
-/**
- * @typedef {Object} Paket
- * @property {string} id
- * @property {string} nama
- * @property {string} detail
- * @property {number} harga
- */
-
-/** @type {BahanAjar[]} */
 export const dbBahanAjar = [
   {
     kode: "MK001",
@@ -71,8 +50,6 @@ export const dbBahanAjar = [
     harga: 95000,
   },
 ];
-
-/** @type {Paket[]} */
 export const dbPaket = [
   {
     id: "PKT01",
@@ -93,5 +70,4 @@ export const dbPaket = [
     harga: 280000,
   },
 ];
-
 export const dbUpbjj = ["Jakarta", "Bandung", "Surabaya", "Denpasar", "Medan"];

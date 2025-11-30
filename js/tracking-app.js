@@ -7,7 +7,6 @@ const App = {
     const listPaket = ref(dbPaket);
     const listEkspedisi = ref(["JNE Regular", "JNE Express", "Pos Indonesia"]);
 
-    // State Form Input
     const inputDO = ref({
       nim: "",
       nama: "",
@@ -17,9 +16,8 @@ const App = {
       hargaDisplay: 0,
     });
 
-    const doCounter = ref(3); // Start dari 3 karena kita punya 2 dummy data
+    const doCounter = ref(3);
 
-    // --- DATA RIWAYAT (Diisi Dummy Awal agar bisa di-search) ---
     const riwayatDO = ref([
       {
         noDO: "DO2025-001",
@@ -29,7 +27,7 @@ const App = {
         paket: "Paket Semester 1 TI",
         harga: 450000,
         tanggal: "2025-11-28",
-        status: "Delivered", // Status tambahan untuk simulasi tracking
+        status: "Delivered",
       },
       {
         noDO: "DO2025-002",
@@ -43,25 +41,21 @@ const App = {
       },
     ]);
 
-    // --- STATE PENCARIAN & MODAL TRACKING ---
     const keywordResi = ref("");
-    const searchResult = ref(null); // Menyimpan object DO yang ditemukan
+    const searchResult = ref(null);
     const showTrackingModal = ref(false);
-    const timelineData = ref([]); // Simulasi history perjalanan paket
+    const timelineData = ref([]);
 
-    // Computed: Auto Generate DO Number
     const generatedDONumber = computed(() => {
       const year = new Date().getFullYear();
       const sequence = String(doCounter.value).padStart(3, "0");
       return `DO${year}-${sequence}`;
     });
 
-    // Computed: Detail Paket (Form)
     const selectedPaketDetail = computed(() => {
       return listPaket.value.find((p) => p.id === inputDO.value.paketId);
     });
 
-    // Watcher: Update Harga Form
     watch(
       () => inputDO.value.paketId,
       (newId) => {
@@ -70,7 +64,6 @@ const App = {
       }
     );
 
-    // Methods
     const formatRupiah = (angka) => {
       return new Intl.NumberFormat("id-ID", {
         style: "currency",
@@ -92,7 +85,7 @@ const App = {
         paket: selectedPaketDetail.value?.nama || "-",
         harga: inputDO.value.hargaDisplay,
         tanggal: inputDO.value.tanggal,
-        status: "Manifested", // Status awal
+        status: "Manifested",
       };
 
       riwayatDO.value.unshift(dataBaru);
@@ -106,21 +99,19 @@ const App = {
       alert(`DO ${dataBaru.noDO} berhasil disimpan!`);
     };
 
-    // --- LOGIC PENCARIAN PAKET ---
     const cariPaket = () => {
       if (!keywordResi.value) {
         alert("Masukkan Nomor DO terlebih dahulu!");
         return;
       }
 
-      // Cari di array riwayat (Case insensitive)
       const found = riwayatDO.value.find(
         (item) => item.noDO.toLowerCase() === keywordResi.value.toLowerCase()
       );
 
       if (found) {
         searchResult.value = found;
-        generateMockTimeline(found); // Bikin timeline palsu biar keren
+        generateMockTimeline(found);
         showTrackingModal.value = true;
       } else {
         alert("Nomor DO tidak ditemukan!");
@@ -132,12 +123,10 @@ const App = {
       searchResult.value = null;
     };
 
-    // Helper: Simulasi Timeline Tracking berdasarkan status
     const generateMockTimeline = (item) => {
       const steps = [];
       const date = item.tanggal;
 
-      // Step 1: Input Data
       steps.push({
         date: date,
         time: "08:00",
@@ -146,7 +135,6 @@ const App = {
         done: true,
       });
 
-      // Step 2: Manifest
       steps.push({
         date: date,
         time: "14:30",
@@ -155,7 +143,6 @@ const App = {
         done: true,
       });
 
-      // Step 3: Transit (Simulasi)
       if (item.status === "On Process" || item.status === "Delivered") {
         steps.push({
           date: date, // Asumsi hari yang sama malamnya
@@ -166,7 +153,6 @@ const App = {
         });
       }
 
-      // Step 4: Delivered (Simulasi)
       if (item.status === "Delivered") {
         steps.push({
           date: "Estimasi +2 Hari",
@@ -176,7 +162,6 @@ const App = {
           done: true,
         });
       } else {
-        // Future step (belum selesai)
         steps.push({
           date: "Estimasi",
           time: "--:--",
@@ -186,7 +171,7 @@ const App = {
         });
       }
 
-      timelineData.value = steps.reverse(); // Yang terbaru di atas
+      timelineData.value = steps.reverse();
     };
 
     return {
