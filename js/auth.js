@@ -34,7 +34,7 @@ function getSessionCookie() {
 // 3. Fungsi Login
 function doLogin(email, password) {
   if (email === CREDENTIALS.email && password === CREDENTIALS.password) {
-    // Generate simple token (dummy)
+    // Generate dummy token
     const token = btoa(`${email}:${new Date().getTime()}`);
     setSessionCookie(token);
     return true;
@@ -48,8 +48,7 @@ function doLogout() {
   window.location.href = "login.html";
 }
 
-// 5. AUTO CHECK (The Guard)
-// Jalankan pengecekan ini setiap kali file ini dimuat
+// 5. Auto check auth
 (function checkAuth() {
   const currentPage = window.location.pathname.split("/").pop();
 
@@ -62,7 +61,7 @@ function doLogout() {
       window.location.href = "login.html";
     }
   } else {
-    // Jika halaman sekarang ADALAH login.html, tapi user sudah punya token
+    // Jika halaman sekarang adalah login.html, tapi user sudah punya token
     // Redirect langsung ke index (biar tidak login ulang)
     const token = getSessionCookie();
     if (token) {
